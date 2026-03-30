@@ -3,62 +3,145 @@ import { RouterView } from "vue-router";
 </script>
 
 <template>
-  <div class="relative min-h-screen text-slate-200 selection:bg-blue-500/30">
-    <div class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden">
-      <div
-        class="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-600/10 blur-[120px] animate-pulse-slow"
-      />
-      <div
-        class="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-purple-600/10 blur-[120px] animate-pulse-slow"
-      />
-    </div>
-
+  <div class="root-shell">
     <router-view v-slot="{ Component }">
-      <transition name="fade" mode="out-in">
+      <transition name="page" mode="out-in">
         <component :is="Component" />
       </transition>
     </router-view>
-
-    <footer
-      class="py-10 px-6 border-t border-white/5 bg-slate-950/50 backdrop-blur-2xl mt-auto"
-    >
-      <div
-        class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4"
-      >
-        <div class="flex flex-col items-center md:items-start">
-          <span class="text-xl font-black tracking-tighter text-white">
-            KHO TỔNG <span class="text-blue-500">PREMIUM</span>
-          </span>
-          <p
-            class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mt-1"
-          >
-            Hệ thống tra cứu nội bộ
-          </p>
-        </div>
-        <div
-          class="text-[10px] font-black text-slate-600 uppercase tracking-widest"
-        >
-          © 2026 PREMIUM SYSTEM
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
 <style>
-/* Hiệu ứng chuyển trang mượt mà */
-.fade-enter-active,
-.fade-leave-active {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+/* ─── FONTS ─────────────────────────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400&family=JetBrains+Mono:wght@500;700&display=swap");
+
+/* ─── DESIGN TOKENS ─────────────────────────────────────── */
+:root {
+  --bg: #f4f6fb;
+  --bg-card: #ffffff;
+  --bg-muted: #edf0f8;
+  --bg-input: #eef1f8;
+
+  --border: #e0e4f0;
+  --border-md: #c5cae0;
+
+  --ink: #111827;
+  --ink-2: #1f2937;
+  --ink-3: #6b7280;
+  --ink-4: #9ca3af;
+  --ink-5: #d1d5db;
+
+  --blue: #2563eb;
+  --blue-dark: #1d4ed8;
+  --blue-hover: #1e56d4;
+  --blue-light: #dbeafe;
+  --blue-soft: #eff6ff;
+  --blue-muted: #bfdbfe;
+
+  --green: #16a34a;
+  --green-bg: #f0fdf4;
+  --green-border: #bbf7d0;
+  --green-text: #15803d;
+
+  --amber: #b45309;
+  --amber-bg: #fffbeb;
+  --amber-border: #fde68a;
+  --amber-text: #92400e;
+
+  --shadow-sm:
+    0 1px 3px rgba(17, 24, 39, 0.07), 0 1px 2px rgba(17, 24, 39, 0.04);
+  --shadow-md:
+    0 4px 16px rgba(17, 24, 39, 0.09), 0 2px 4px rgba(17, 24, 39, 0.05);
+  --shadow-lg:
+    0 12px 40px rgba(17, 24, 39, 0.11), 0 4px 10px rgba(17, 24, 39, 0.06);
+  --shadow-card:
+    0 2px 8px rgba(37, 99, 235, 0.07), 0 1px 3px rgba(17, 24, 39, 0.06);
+  --shadow-blue: 0 8px 32px rgba(37, 99, 235, 0.25);
+
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 24px;
 }
-.fade-enter-from {
+
+/* ─── RESET ──────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family:
+    "Be Vietnam Pro",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+body {
+  overflow-x: hidden;
+  min-height: 100dvh;
+}
+
+::selection {
+  background: var(--blue-light);
+  color: var(--blue-dark);
+}
+
+/* ─── SCROLLBAR ──────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-md);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a0a8c0;
+}
+
+/* ─── PAGE TRANSITION ────────────────────────────────────── */
+.page-enter-active,
+.page-leave-active {
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
+}
+.page-enter-from {
   opacity: 0;
   transform: translateY(10px);
 }
-.fade-leave-to {
+.page-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-6px);
+}
+
+/* ─── GLOBAL UTILITIES ───────────────────────────────────── */
+.mono {
+  font-family: "JetBrains Mono", monospace;
+  letter-spacing: -0.03em;
+}
+
+/* ─── INPUT RESET ────────────────────────────────────────── */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input,
+button {
+  font-family: inherit;
 }
 </style>

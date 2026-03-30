@@ -1,42 +1,106 @@
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400&family=JetBrains+Mono:wght@500;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: #020617; /* Sâu thẳm như vũ trụ */
-  color: #e2e8f0;
-  margin: 0;
-  overflow-x: hidden;
+:root {
+  --bg: #f4f6fb;
+  --bg-card: #ffffff;
+  --bg-muted: #edf0f8;
+  --bg-input: #eef1f8;
+  --border: #e0e4f0;
+  --border-md: #c5cae0;
+  --ink: #111827;
+  --ink-2: #1f2937;
+  --ink-3: #6b7280;
+  --ink-4: #9ca3af;
+  --ink-5: #d1d5db;
+  --blue: #2563eb;
+  --blue-dark: #1d4ed8;
+  --blue-light: #dbeafe;
+  --blue-soft: #eff6ff;
+  --blue-muted: #bfdbfe;
+  --green: #16a34a;
+  --green-bg: #f0fdf4;
+  --green-border: #bbf7d0;
+  --green-text: #15803d;
+  --amber: #b45309;
+  --amber-bg: #fffbeb;
+  --amber-border: #fde68a;
+  --amber-text: #92400e;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --shadow-xs: 0 1px 2px rgba(17, 24, 39, 0.05);
+  --shadow-sm:
+    0 1px 3px rgba(17, 24, 39, 0.08), 0 1px 2px rgba(17, 24, 39, 0.04);
+  --shadow-md:
+    0 4px 16px rgba(17, 24, 39, 0.09), 0 2px 4px rgba(17, 24, 39, 0.05);
+  --shadow-lg:
+    0 12px 40px rgba(17, 24, 39, 0.11), 0 4px 10px rgba(17, 24, 39, 0.06);
+  --shadow-card:
+    0 2px 8px rgba(37, 99, 235, 0.06), 0 1px 3px rgba(17, 24, 39, 0.05);
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 24px;
 }
 
-/* Thanh cuộn phong cách Cyberpunk mỏng dính */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family:
+    "Be Vietnam Pro",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  overflow-x: hidden;
+  min-height: 100dvh;
+  background: var(--bg);
+}
+
+::selection {
+  background: var(--blue-light);
+  color: var(--blue-dark);
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #020617;
+  background: var(--bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6;
+  background: var(--border-md);
+  border-radius: 99px;
 }
 
-/* Class hiệu ứng lấp lánh cho Text */
-.text-shimmer {
-  background: linear-gradient(
-    to right,
-    #94a3b8 20%,
-    #ffffff 40%,
-    #ffffff 60%,
-    #94a3b8 80%
-  );
-  background-size: 200% auto;
-  color: #000;
-  background-clip: text;
-  text-fill-color: transparent;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input,
+button {
+  font-family: inherit;
+}
+
+.mono {
+  font-family: "JetBrains Mono", monospace;
+  letter-spacing: -0.03em;
 }

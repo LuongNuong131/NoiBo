@@ -2,7 +2,20 @@
 import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { productsData } from "../data/products";
-import { ArrowLeft, Copy, Calculator, Cpu, Zap, Info } from "lucide-vue-next";
+import {
+  ArrowLeft,
+  Copy,
+  Check,
+  Calculator,
+  Battery,
+  HardDrive,
+  Monitor,
+  ScanFace,
+  Wifi,
+  Package,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-vue-next";
 
 const route = useRoute();
 const router = useRouter();
@@ -11,258 +24,757 @@ const product = computed(() =>
 );
 
 const profit = ref(500000);
-const quickProfits = [500000, 1000000, 1500000, 2000000];
 const finalPrice = computed(() => (product.value?.price || 0) + profit.value);
+const copied = ref(false);
+const imgLoaded = ref(false);
+
+onMounted(() => window.scrollTo(0, 0));
 
 const formatVND = (val) =>
   new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
     val,
   );
 
-const handleCopy = async () => {
-  if (!product.value) return;
-  const text = `🔥 Siêu phẩm: ${product.value.name} (${product.value.storage})\n✨ Tình trạng: ${product.value.condition}\n🔋 Pin zin: ${product.value.battery}\n📦 Đi kèm: ${product.value.accessories}\n💰 Giá cực nét: ${formatVND(finalPrice.value)}\n\n👉 Nhắn chốt ngay với em nhé!`;
-  try {
-    await navigator.clipboard.writeText(text);
-    alert("Đã copy thành công! Dán gửi khách ngay thôi.");
-  } catch (err) {
-    alert("Lỗi khi copy!");
-  }
+const formatShort = (val) => {
+  if (val >= 1_000_000)
+    return (val / 1_000_000).toFixed(1).replace(".0", "") + " triệu";
+  return new Intl.NumberFormat("vi-VN").format(val) + "đ";
 };
 
-onMounted(() => window.scrollTo(0, 0));
+const marginPct = computed(() => {
+  if (!product.value?.price || product.value.price === 0) return "0";
+  return ((profit.value / product.value.price) * 100).toFixed(1);
+});
+
+const handleCopy = async () => {
+  if (!product.value) return;
+  const text =
+    `💎 ${product.value.name}\n` +
+    `📦 ${product.value.storage} — ${product.value.color}\n` +
+    `🔋 Pin: ${product.value.battery} | ${product.value.condition}\n` +
+    `🎁 ${product.value.accessories}\n` +
+    `💰 Giá bán: ${formatVND(finalPrice.value)}\n` +
+    `➡️ Liên hệ ngay để check hàng!`;
+  await navigator.clipboard.writeText(text);
+  copied.value = true;
+  setTimeout(() => (copied.value = false), 2800);
+};
+
+const specs = computed(() => {
+  if (!product.value) return [];
+  return [
+    {
+      icon: Battery,
+      label: "Pin",
+      value: product.value.battery,
+      color: "#16a34a",
+      bg: "#f0fdf4",
+      border: "#bbf7d0",
+    },
+    {
+      icon: HardDrive,
+      label: "Bộ nhớ",
+      value: product.value.storage,
+      color: "#2563eb",
+      bg: "#eff6ff",
+      border: "#bfdbfe",
+    },
+    {
+      icon: Monitor,
+      label: "Màn hình",
+      value: product.value.screen,
+      color: "#7c3aed",
+      bg: "#f5f3ff",
+      border: "#ddd6fe",
+    },
+    {
+      icon: ScanFace,
+      label: "Face ID",
+      value: product.value.faceid,
+      color: "#d97706",
+      bg: "#fffbeb",
+      border: "#fde68a",
+    },
+    {
+      icon: Wifi,
+      label: "SIM",
+      value: product.value.sim,
+      color: "#0891b2",
+      bg: "#ecfeff",
+      border: "#a5f3fc",
+    },
+    {
+      icon: Package,
+      label: "Phụ kiện",
+      value: product.value.accessories,
+      color: "#be185d",
+      bg: "#fdf2f8",
+      border: "#fbcfe8",
+    },
+  ];
+});
 </script>
 
 <template>
-  <div v-if="product" class="min-h-screen pb-48 relative">
-    <nav
-      class="sticky top-0 z-50 px-6 py-5 backdrop-blur-2xl bg-[#020617]/70 border-b border-white/5"
-    >
-      <div class="max-w-7xl mx-auto flex items-center justify-between">
-        <button
-          @click="router.back()"
-          class="p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5 group shadow-lg"
-        >
-          <ArrowLeft
-            class="w-5 h-5 text-white group-hover:-translate-x-1 transition-transform"
-          />
-        </button>
-        <div class="text-center">
-          <h2
-            class="font-black text-white text-lg tracking-tight drop-shadow-md"
-          >
-            {{ product.name }}
-          </h2>
-          <p
-            class="text-[10px] text-blue-500 font-black uppercase tracking-[0.3em]"
-          >
-            Hồ sơ bảo mật
-          </p>
-        </div>
-        <div class="w-11"></div>
+  <div v-if="product" class="pd-root">
+    <!-- ══════════ STICKY NAV ══════════ -->
+    <nav class="pd-nav">
+      <button class="pd-back-btn" @click="router.back()">
+        <ArrowLeft :size="18" />
+      </button>
+      <div class="pd-nav-center">
+        <div class="pd-nav-tag">Sản phẩm xác thực</div>
+        <div class="pd-nav-name">{{ product.name }}</div>
+      </div>
+      <div class="pd-nav-os" :class="product.os === 'IOS' ? 'ios' : 'android'">
+        {{ product.os }}
       </div>
     </nav>
 
-    <div
-      class="max-w-6xl mx-auto px-6 mt-10 grid grid-cols-1 lg:grid-cols-12 gap-12"
-    >
-      <div class="lg:col-span-5 relative group">
-        <div
-          class="absolute -inset-1 bg-gradient-to-b from-blue-500 to-purple-600 rounded-[3.2rem] opacity-30 blur-xl group-hover:opacity-50 transition-opacity duration-1000"
-        />
-        <div
-          class="aspect-[4/5] bg-[#0f172a] rounded-[3rem] border border-white/10 overflow-hidden relative shadow-2xl z-10"
-        >
-          <img
-            :src="product.images[0]"
-            class="w-full h-full object-cover hover:scale-110 transition-transform duration-1000"
-          />
-          <div
-            class="absolute top-6 left-6 bg-[#020617]/80 backdrop-blur-xl px-5 py-3 rounded-2xl border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.8)]"
-          >
-            <p
-              class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1"
-            >
-              Giá nhập kho
-            </p>
-            <p
-              class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-orange-400"
-            >
-              {{ formatVND(product.price) }}
-            </p>
-          </div>
-        </div>
-      </div>
+    <!-- ══════════ PRODUCT IMAGE ══════════ -->
+    <div class="pd-img-wrap">
+      <!-- Soft gradient behind image -->
+      <div class="pd-img-glow"></div>
+      <img
+        :src="product.images[0]"
+        :alt="product.name"
+        class="pd-img"
+        :class="{ loaded: imgLoaded }"
+        @load="imgLoaded = true"
+      />
+      <!-- Gradient overlay at bottom -->
+      <div class="pd-img-overlay"></div>
 
-      <div class="lg:col-span-7 space-y-8 py-4">
-        <div class="animate-float" style="animation-duration: 8s">
-          <h1
-            class="text-5xl md:text-6xl font-black text-white mb-4 tracking-tighter leading-none"
-          >
-            {{ product.name }}
-          </h1>
-          <p class="text-2xl text-slate-400 font-bold">
-            Bản <span class="text-white">{{ product.storage }}</span> • Màu
-            <span class="text-white">{{ product.color }}</span>
-          </p>
+      <!-- Floating badges on image -->
+      <div class="pd-img-badges">
+        <div class="pd-badge-cond">
+          <ShieldCheck :size="11" />
+          {{ product.condition }}
         </div>
-
-        <div class="grid grid-cols-2 gap-5">
-          <div
-            class="bg-gradient-to-br from-blue-900/20 to-transparent border border-blue-500/20 p-5 rounded-[2rem] flex items-center gap-5 hover:border-blue-500/50 transition-colors"
-          >
-            <div class="p-4 bg-blue-500/10 rounded-2xl">
-              <Cpu class="w-6 h-6 text-blue-400" />
-            </div>
-            <div>
-              <p
-                class="text-[10px] text-blue-400/70 font-black uppercase tracking-widest"
-              >
-                Tình trạng
-              </p>
-              <p class="text-lg font-black text-white">
-                {{ product.condition }}
-              </p>
-            </div>
-          </div>
-          <div
-            class="bg-gradient-to-br from-emerald-900/20 to-transparent border border-emerald-500/20 p-5 rounded-[2rem] flex items-center gap-5 hover:border-emerald-500/50 transition-colors"
-          >
-            <div class="p-4 bg-emerald-500/10 rounded-2xl">
-              <Zap class="w-6 h-6 text-emerald-400" />
-            </div>
-            <div>
-              <p
-                class="text-[10px] text-emerald-400/70 font-black uppercase tracking-widest"
-              >
-                Độ chai pin
-              </p>
-              <p class="text-lg font-black text-white">{{ product.battery }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="bg-[#1e1b4b]/30 border border-indigo-500/20 p-8 rounded-[2.5rem] relative overflow-hidden"
-        >
-          <div class="absolute top-0 right-0 p-6 opacity-5">
-            <Info class="w-32 h-32 text-indigo-400" />
-          </div>
-          <div class="relative z-10">
-            <h3
-              class="text-indigo-400 text-xs font-black uppercase tracking-[0.2em] mb-4"
-            >
-              Ghi chú kiểm định
-            </h3>
-            <p
-              class="text-indigo-100/80 font-medium text-lg leading-relaxed mb-6"
-            >
-              {{ product.notes }}
-            </p>
-            <div
-              class="grid grid-cols-2 gap-6 pt-6 border-t border-indigo-500/20"
-            >
-              <div>
-                <span
-                  class="block text-[10px] text-indigo-400/50 font-black uppercase mb-2 tracking-widest"
-                  >Phụ kiện</span
-                >
-                <span class="text-white font-black text-sm">{{
-                  product.accessories
-                }}</span>
-              </div>
-              <div>
-                <span
-                  class="block text-[10px] text-indigo-400/50 font-black uppercase mb-2 tracking-widest"
-                  >Sinh trắc học</span
-                >
-                <span class="text-white font-black text-sm">{{
-                  product.faceid
-                }}</span>
-              </div>
-            </div>
-          </div>
+        <div class="pd-badge-color">
+          {{ product.color }}
         </div>
       </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 right-0 z-50 p-6">
-      <div
-        class="max-w-5xl mx-auto bg-[#0f172a]/90 backdrop-blur-3xl rounded-[3rem] p-8 border border-white/10 shadow-[0_-20px_80px_rgba(0,0,0,0.8)] flex flex-col lg:flex-row items-center gap-8 justify-between relative overflow-hidden"
-      >
-        <div
-          class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-50"
-        />
+    <!-- ══════════ CONTENT BODY ══════════ -->
+    <div class="pd-body">
+      <!-- Brand + name + price -->
+      <div class="pd-top-info">
+        <div class="pd-brand">{{ product.brand }}</div>
+        <h1 class="pd-name">{{ product.name }}</h1>
+        <div class="pd-price-row">
+          <div>
+            <div class="pd-price-label">Giá gốc nội bộ</div>
+            <div class="pd-price mono">{{ formatShort(product.price) }}</div>
+          </div>
+          <div class="pd-price-pill">
+            <Sparkles :size="11" />
+            Exclusive
+          </div>
+        </div>
+      </div>
 
-        <div class="w-full lg:w-1/2 space-y-4">
-          <div class="flex items-center justify-between">
-            <label
-              class="text-xs font-black text-blue-400 uppercase tracking-[0.2em] flex items-center gap-2"
-            >
-              <Calculator class="w-4 h-4" /> Margin Control
-            </label>
+      <!-- Notes card -->
+      <div class="pd-notes-card">
+        <div class="pd-notes-header">
+          <Sparkles :size="12" />
+          Ghi chú chuyên viên
+        </div>
+        <p class="pd-notes-text">"{{ product.notes }}"</p>
+      </div>
+
+      <!-- Specs grid -->
+      <div class="pd-specs-section">
+        <div class="pd-section-title">Thông số chi tiết</div>
+        <div class="pd-specs-grid">
+          <div
+            v-for="spec in specs"
+            :key="spec.label"
+            class="pd-spec-card"
+            :style="`border-color: ${spec.border}; background: ${spec.bg};`"
+          >
             <div
-              class="flex gap-2 bg-[#020617] p-1.5 rounded-2xl border border-white/5"
+              class="pd-spec-icon-wrap"
+              :style="`background: ${spec.color}18`"
             >
-              <button
-                v-for="val in quickProfits"
-                :key="val"
-                @click="profit = val"
-                :class="
-                  profit === val
-                    ? 'bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.5)]'
-                    : 'text-slate-400 hover:text-white'
-                "
-                class="text-xs font-black px-4 py-2 rounded-xl transition-all"
-              >
-                +{{ val / 1000000 }}M
-              </button>
+              <component
+                :is="spec.icon"
+                :size="14"
+                :style="`color: ${spec.color}`"
+              />
+            </div>
+            <div class="pd-spec-content">
+              <div class="pd-spec-label">{{ spec.label }}</div>
+              <div class="pd-spec-value">{{ spec.value }}</div>
             </div>
           </div>
-          <div class="relative">
+        </div>
+      </div>
+
+      <!-- Extra bottom padding for fixed bar -->
+      <div style="height: 140px"></div>
+    </div>
+
+    <!-- ══════════ FIXED PRICE CALCULATOR ══════════ -->
+    <div class="pd-calc-bar">
+      <div class="pd-calc-inner">
+        <!-- Profit input -->
+        <div class="pd-calc-input-group">
+          <div class="pd-calc-input-header">
+            <span class="pd-calc-label">
+              <Calculator :size="12" />
+              Lãi thêm
+            </span>
             <span
-              class="absolute left-6 top-1/2 -translate-y-1/2 text-blue-500 font-black text-xl"
-              >₫</span
+              class="pd-margin-badge"
+              :class="profit > 0 ? 'pos' : profit < 0 ? 'neg' : 'zero'"
             >
+              {{ profit > 0 ? "+" : "" }}{{ marginPct }}%
+            </span>
+          </div>
+          <div class="pd-calc-input-wrap">
             <input
               type="number"
-              v-model="profit"
-              class="w-full bg-[#020617] border border-white/10 rounded-[1.5rem] pl-14 pr-6 py-5 text-white font-black text-2xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all shadow-inner"
+              v-model.number="profit"
+              class="pd-calc-input mono"
+              placeholder="500000"
             />
+            <span class="pd-calc-input-suffix">đ</span>
           </div>
         </div>
 
-        <div
-          class="w-full lg:w-1/2 flex items-center justify-between gap-6 pl-0 lg:pl-8 border-t lg:border-t-0 lg:border-l border-white/10 pt-6 lg:pt-0"
-        >
+        <!-- Divider -->
+        <div class="pd-calc-divider"></div>
+
+        <!-- Final price + copy -->
+        <div class="pd-calc-result">
           <div>
-            <p
-              class="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-2"
-            >
-              Giá chốt Sale
-            </p>
-            <p
-              class="text-4xl md:text-5xl font-black text-white tracking-tighter drop-shadow-lg"
-            >
-              {{ formatVND(finalPrice) }}
-            </p>
+            <div class="pd-calc-result-label">Giá bán ra</div>
+            <div class="pd-calc-final-price mono">
+              {{ formatShort(finalPrice) }}
+            </div>
           </div>
           <button
+            class="pd-copy-btn"
+            :class="{ done: copied }"
             @click="handleCopy"
-            class="group relative overflow-hidden flex items-center gap-3 bg-white text-black px-8 py-5 rounded-[2rem] font-black hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(255,255,255,0.3)] flex-shrink-0"
           >
-            <div
-              class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/80 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"
-            />
-            <Copy class="w-6 h-6 relative z-10" />
-            <span
-              class="relative z-10 text-lg uppercase tracking-widest hidden sm:block"
-              >Copy Form</span
-            >
-            <span class="relative z-10 text-lg uppercase sm:hidden">Copy</span>
+            <component :is="copied ? Check : Copy" :size="16" />
+            <span>{{ copied ? "Copied!" : "Copy" }}</span>
           </button>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Not found -->
+  <div v-else class="pd-not-found">
+    <div style="font-size: 48px">📱</div>
+    <p>Không tìm thấy sản phẩm</p>
+    <button @click="router.back()" class="pd-back-link">← Quay lại</button>
+  </div>
 </template>
+
+<style scoped>
+/* ── ROOT ──────────────────────────────────────────────── */
+.pd-root {
+  min-height: 100dvh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ── NAV ───────────────────────────────────────────────── */
+.pd-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(244, 246, 251, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.pd-back-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-xs);
+}
+.pd-back-btn:hover {
+  background: var(--blue-soft);
+  border-color: var(--blue-muted);
+  color: var(--blue);
+}
+.pd-back-btn:active {
+  transform: scale(0.95);
+}
+
+.pd-nav-center {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+.pd-nav-tag {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--blue);
+  margin-bottom: 2px;
+}
+.pd-nav-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.025em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.pd-nav-os {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  flex-shrink: 0;
+  letter-spacing: 0.04em;
+}
+.pd-nav-os.ios {
+  background: var(--bg-muted);
+  color: var(--ink-2);
+  border: 1.5px solid var(--border-md);
+}
+.pd-nav-os.android {
+  background: var(--green-bg);
+  color: var(--green-text);
+  border: 1.5px solid var(--green-border);
+}
+
+/* ── IMAGE ─────────────────────────────────────────────── */
+.pd-img-wrap {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-muted);
+  aspect-ratio: 4/3.2;
+}
+.pd-img-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center top,
+    rgba(37, 99, 235, 0.1) 0%,
+    transparent 70%
+  );
+  z-index: 0;
+}
+.pd-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.pd-img.loaded {
+  opacity: 1;
+}
+.pd-img-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to top, var(--bg) 0%, transparent 100%);
+  z-index: 2;
+}
+.pd-img-badges {
+  position: absolute;
+  bottom: 16px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 3;
+}
+.pd-badge-cond {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.pd-badge-color {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ── BODY ──────────────────────────────────────────────── */
+.pd-body {
+  padding: 0 14px;
+  flex: 1;
+}
+
+/* Top info */
+.pd-top-info {
+  padding: 20px 0 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.pd-brand {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-4);
+  margin-bottom: 4px;
+}
+.pd-name {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+.pd-price-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.pd-price-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 3px;
+}
+.pd-price {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.04em;
+}
+.pd-price-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--blue-soft);
+  border: 1px solid var(--blue-muted);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue);
+}
+
+/* Notes card */
+.pd-notes-card {
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+.pd-notes-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--amber);
+  margin-bottom: 8px;
+}
+.pd-notes-text {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--amber-text);
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Specs section */
+.pd-specs-section {
+  margin-bottom: 16px;
+}
+.pd-section-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-4);
+  margin-bottom: 10px;
+}
+.pd-specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.pd-spec-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--r-md);
+  border: 1px solid;
+  transition: transform 0.15s;
+}
+.pd-spec-card:active {
+  transform: scale(0.98);
+}
+.pd-spec-icon-wrap {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pd-spec-content {
+  min-width: 0;
+}
+.pd-spec-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-4);
+  margin-bottom: 3px;
+}
+.pd-spec-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-2);
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* ── FIXED CALC BAR ────────────────────────────────────── */
+.pd-calc-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  padding: 10px 12px 14px;
+  /* Ensure it stays within the max-width on large screens */
+}
+@media (min-width: 600px) {
+  .pd-calc-bar {
+    max-width: 600px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+.pd-calc-inner {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-md);
+  border-radius: var(--r-xl);
+  padding: 14px 14px 14px 16px;
+  box-shadow:
+    0 -4px 32px rgba(17, 24, 39, 0.1),
+    0 8px 40px rgba(17, 24, 39, 0.14);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pd-calc-input-group {
+  flex: 1;
+  min-width: 0;
+}
+.pd-calc-input-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.pd-calc-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--blue);
+}
+.pd-margin-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+.pd-margin-badge.pos {
+  background: var(--green-bg);
+  color: var(--green-text);
+  border: 1px solid var(--green-border);
+}
+.pd-margin-badge.neg {
+  background: var(--red-bg);
+  color: var(--red);
+  border: 1px solid #fecaca;
+}
+.pd-margin-badge.zero {
+  background: var(--bg-muted);
+  color: var(--ink-4);
+  border: 1px solid var(--border);
+}
+
+.pd-calc-input-wrap {
+  position: relative;
+}
+.pd-calc-input {
+  width: 100%;
+  padding: 9px 32px 9px 12px;
+  border-radius: var(--r-sm);
+  background: var(--bg-input);
+  border: 1.5px solid var(--border);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  outline: none;
+  transition:
+    border-color 0.16s,
+    box-shadow 0.16s;
+}
+.pd-calc-input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+.pd-calc-input-suffix {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-4);
+  pointer-events: none;
+}
+
+.pd-calc-divider {
+  width: 1px;
+  height: 52px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.pd-calc-result {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.pd-calc-result-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-4);
+  text-align: right;
+  white-space: nowrap;
+}
+.pd-calc-final-price {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pd-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  background: var(--blue);
+  color: white;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+  white-space: nowrap;
+}
+.pd-copy-btn:hover {
+  background: var(--blue-dark);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+.pd-copy-btn:active {
+  transform: scale(0.96);
+}
+.pd-copy-btn.done {
+  background: var(--green);
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.3);
+}
+
+/* ── NOT FOUND ─────────────────────────────────────────── */
+.pd-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 12px;
+  padding: 32px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink-3);
+  text-align: center;
+}
+.pd-back-link {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue);
+  cursor: pointer;
+  background: none;
+  border: none;
+  text-decoration: underline;
+}
+</style>

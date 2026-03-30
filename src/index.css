@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Nạp phông chữ Inter */
+@import url("https://rsms.me/inter/inter.css");
+
+@layer base {
+  html {
+    font-family: "Inter var", sans-serif;
+    @apply bg-brand-bg text-brand-text antialiased;
+  }
+}
+
+/* Định nghĩa utility class cho Glassmorphism */
+@layer utilities {
+  .glass-effect {
+    @apply bg-glass backdrop-blur-md border border-white/5;
+  }
+
+  /* Hiệu ứng chữ lấp lánh (Shimmer) cho tiêu đề xịn xò */
+  .text-shimmer {
+    background: linear-gradient(
+      to right,
+      #f1f5f9 20%,
+      #f59e0b 40%,
+      #f59e0b 60%,
+      #f1f5f9 80%
+    );
+    background-size: 200% auto;
+    color: #000;
+    background-clip: text;
+    text-fill-color: transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 2.5s linear infinite;
+  }
+}
