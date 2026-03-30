@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #020617; /* Sâu thẳm như vũ trụ */
+  color: #e2e8f0;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* Thanh cuộn phong cách Cyberpunk mỏng dính */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
+
+/* Class hiệu ứng lấp lánh cho Text */
+.text-shimmer {
+  background: linear-gradient(
+    to right,
+    #94a3b8 20%,
+    #ffffff 40%,
+    #ffffff 60%,
+    #94a3b8 80%
+  );
+  background-size: 200% auto;
+  color: #000;
+  background-clip: text;
+  text-fill-color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
